@@ -1,24 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import { Box, Paper, Tooltip, Typography, Grid, AppBar } from '@mui/material';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Paper elevation={3}>
+      <div>
+      <AppBar color='primary' position='static'>
+              <Typography variant='body1' align='center'>MilliMortoMeter</Typography> 
+      </AppBar>
+        <Grid container spacing={2}>
+          
+          <Grid item xs={12}>
+            <Box>
+              
+            </Box>
+          </Grid>
+        </Grid>
+      </div>
+    
+    </Paper>
   );
 }
 

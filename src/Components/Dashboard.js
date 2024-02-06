@@ -6,6 +6,8 @@ import HomeOutlined from "@mui/icons-material/HomeOutlined";
 import ExploreIcon  from "@mui/icons-material/HomeOutlined";
 import CrisisAlertIcon from "@mui/icons-material/HomeOutlined";
 import { useState } from "react";
+import DrawerComponent from './DrawerComponent'
+import FooterComponent from "./Footer";
 
 //drawer data
 const data = [
@@ -14,61 +16,21 @@ const data = [
     { name: "Risk", icon: <CrisisAlertIcon /> },
   ];
 
-const DrawerPermanent = (openState) => {
-    if(openState == false){
-        openState = false;
-    }
-    const getList = () => (
-      <div style={{ width: 250 }}>
-        {data.map((item, index) => (
-          <ListItem button key={index}>
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.name} />
-          </ListItem>
-        ))}
-      </div>
-    );
-    return (
-        <div>          
-          <Drawer open={openState} anchor={"left"}>
-            {getList()}
-          </Drawer>
-        </div>
-      );
-}
-
-//Footer component
-const Footer = () => {
-    return (
-        <Container sx={{ 
-            m:2,
-            backgroundColor:"white",
-            alignSelf:"flex-end"
-        }}>
-            <Typography variant="body2" color="textSecondary" align="center">
-                {"Copyright © "}
-                <Link color={"inherit"} href="https://MilliMortoMeter.com/">MilliMortoMeter</Link>{" "}
-                {new Date().getFullYear()}
-                {"."}
-            </Typography>
-        </Container>
-    )
-}
-
 //component called in index.js
 export default function Dashboard(){
     //useStates needed for the dashboard
-    const [open, setOpen] = React.useState(true)
+    const [open, setOpen] = React.useState(false)
     const handleDrawer = () =>{
         setOpen(!open)
+        return(
+          <DrawerComponent></DrawerComponent>
+        )
+        console.log('drawer clicked')
     }
     //elements to be rendered
     return(
         <div>
-        <CssBaseline/>
-        &&open{
-            <DrawerPermanent></DrawerPermanent>
-        }
+        <CssBaseline/>       
         <Box>
         <AppBar position="sticky">
         <Toolbar >
@@ -107,7 +69,7 @@ export default function Dashboard(){
               </Paper>
             </Grid>
         </Grid>
-        <Footer></Footer>
+        <FooterComponent></FooterComponent>
         </div>//end of container div
     )
 

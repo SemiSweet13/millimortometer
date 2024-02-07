@@ -1,76 +1,93 @@
-import { AppBar, Container, CssBaseline, IconButton, Link, Toolbar, Typography,Grid, Paper, Box } from "@mui/material";
 import React from "react";
-import MenuIcon from '@mui/icons-material/Menu';
-import { Drawer,ListItem,ListItemIcon, ListItemText, Button} from "@mui/material";
-import HomeOutlined from "@mui/icons-material/HomeOutlined";
-import ExploreIcon  from "@mui/icons-material/HomeOutlined";
-import CrisisAlertIcon from "@mui/icons-material/HomeOutlined";
+import { AppBar, Container, CssBaseline, IconButton, Toolbar, Typography, Grid, Paper, Box } from "@mui/material";
+import List from '@mui/material/List';
+import { Drawer, ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
+import ListItemButton from '@mui/material/ListItemButton';
+import HomeOutlined from '@mui/icons-material/HomeOutlined';
+import ExploreIcon from '@mui/icons-material/Explore';
+import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 import { useState } from "react";
-import DrawerComponent from './DrawerComponent'
 import FooterComponent from "./Footer";
 
 //drawer data
 const data = [
-    { name: "Home", icon: <HomeOutlined />,},
-    { name: "Map", icon: <ExploreIcon /> },
-    { name: "Risk", icon: <CrisisAlertIcon /> },
-  ];
-
+  { name: "Home", icon: HomeOutlined },
+  { name: "Map", icon: ExploreIcon },
+  { name: "Risk", icon: CrisisAlertIcon },
+];
+const drawerWidth = 240;
 //component called in index.js
-export default function Dashboard(){
-    //useStates needed for the dashboard
-    const [open, setOpen] = React.useState(false)
-    const handleDrawer = () =>{
-        setOpen(!open)
-        return(
-          <DrawerComponent></DrawerComponent>
-        )
-        console.log('drawer clicked')
-    }
-    //elements to be rendered
-    return(
-        <div>
-        <CssBaseline/>       
-        <Box>
-        <AppBar position="sticky">
-        <Toolbar >
-            <IconButton edge="start" color="inherit" 
-            aria-label="open drawer"
-            onClick={handleDrawer}
-            >
-                <MenuIcon></MenuIcon>
-            </IconButton>
+export default function Dashboard() {
+  //useStates needed for the dashboard
+  const [open, setOpen] = React.useState(false)
+
+  //elements to be rendered
+  return (
+    <div>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar >
             <Typography
-                component="h1"
-                variant="h6"
-                color="inherit"
-                noWrap
+              component="h1"
+              variant="h5"
+              color="inherit"
+              noWrap
             >
-                Dashboard
+              Dashboard
             </Typography>
-        </Toolbar>
+          </Toolbar>
         </AppBar>
-        </Box>
-        <Grid container spacing={3}>
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+          }}
+        >
+          <Toolbar />
+          {/* fix list item height in cleanup */}
+          <Box sx={{ overflow: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100' }}> 
+            <List>
+              {data.map((item) => (
+                <ListItem key={item.name} disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>
+                      {/* Render the icon component */}
+                      <item.icon/>
+                    </ListItemIcon>
+                    <ListItemText primary={item.name} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Toolbar />
+          <Grid container spacing={3}>
             <Grid item xs={12}>
               <Paper >
                 <Typography>test</Typography>
-                
+
               </Paper>
             </Grid>
             <Grid item xs={12}>
               <Paper>
-              <Typography>test2</Typography>
+                <Typography>test2</Typography>
               </Paper>
             </Grid>
             <Grid item xs={12}>
               <Paper>
-              <Typography>test3</Typography>
+                <Typography>test3</Typography>
               </Paper>
             </Grid>
-        </Grid>
+          </Grid>
+        </Box>
         <FooterComponent></FooterComponent>
-        </div>//end of container div
-    )
+      </Box>
+    </div>//end of container div
+  )
 
 }

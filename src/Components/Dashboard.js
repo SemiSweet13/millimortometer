@@ -10,8 +10,10 @@ import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 import { useState } from "react";
 import FooterComponent from "./Footer";
 import { styled } from '@mui/material/styles';
-import { TimeField } from "@mui/x-date-pickers/TimeField";
-
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { TimeField } from '@mui/x-date-pickers/TimeField';
+import SelectorMenu from "./SelectorMenu";
 
 //drawer data
 const data = [
@@ -19,6 +21,28 @@ const data = [
   { name: "Map", icon: ExploreIcon },
   { name: "Risk", icon: CrisisAlertIcon },
 ];
+
+const dayOptions = [
+  {value: '', label: 'None'},
+  {value: 'Monday', label: 'Monday'},
+  {value: 'Tuesday', label: 'Tuesday'},
+  {value: 'Wednesday', label: 'Wednesday'},
+  {value: 'Thursday', label: 'Thursday'},
+  {value: 'Friday', label: 'Friday'},
+  {value: 'Saturday', label: 'Saturday'},
+  {value: 'Sunday', label: 'Sunday'}
+
+]
+const genderOptions = [
+  {value: '', label: 'None'},
+  {value: 'Male', label: 'Male'},
+  {value: 'Female', label: 'Female'}
+]
+const vehicleOptions = [
+  {value: '', label: 'None'},
+  {value: 'Car', label: 'Car'},
+  {value: 'MotorBike', label: 'MotorBike'}
+]
 const drawerWidth = 200;
 
 const StyledTypography = styled(Typography)(({ theme }) => ({
@@ -30,7 +54,21 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 export default function Dashboard() {
   //useStates needed for the dashboard
   const [open, setOpen] = React.useState(false)
+  const [day, setDay] = React.useState('')
+  const [gender, setGender] = React.useState('')
+  const [vehicle, setVehicle] = React.useState('')
 
+
+  //handle change functions
+  const handleDayChange = (event) =>{
+    setDay(event.target.value) 
+  }
+  const handleGenderChange = (event) =>{
+    setGender(event.target.value) 
+  }
+  const handleVehicleChange = (event) =>{
+    setVehicle(event.target.value) 
+  }
   //elements to be rendered
   return (
     <div>
@@ -53,9 +91,9 @@ export default function Dashboard() {
         <Drawer
           variant="permanent"
           sx={{
-            width: drawerWidth,
+            width: 1/4,
             flexShrink: 0,
-            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+            [`& .MuiDrawer-paper`]: { width: 1/4, boxSizing: 'border-box' },
           }}
         >
           <Toolbar />
@@ -77,48 +115,40 @@ export default function Dashboard() {
           </Box>
         </Drawer>
         {/*MAIN component, i.e. dashboard */}    
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box component="main" sx={{ flexGrow: 1, p: 0.5 , border: 1}}>
           <Toolbar />          
           <Grid container spacing={3} justifyContent="center" sx={{ p: '1rem'}} rowSpacing={1} columnSpacing={{xs:1, sm:2, md:3}}>
-            <Grid item xs={12}>
-              <Box sx={{ border: 1, borderRadius:'16px' }}>
-                <StyledTypography>Journey Details enter required information</StyledTypography>
-              </Box>
-            </Grid>
+            
             {/* input forms Age & time of day */}                      
               <Grid item xs = {6}>
                 <Box display="flex" justifyContent="center">
                   <TextField fullWidth
-                    label='age' type="number"></TextField>
+                    label='Driver Age' type="number"></TextField>
                 </Box>
               </Grid>          
               <Grid item xs = {6} >
                 <Box display="flex" justifyContent='center'>
-                  <TextField fullWidth
-                    label='Time of day 24hr' type="number">                      
-                    </TextField>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>     
+                  <TimeField label="Basic time field" fullWidth />     
+                </LocalizationProvider>
                 </Box>
               </Grid>
 
                {/* input forms Day of week, Gender  */}                      
-               <Grid item xs = {6}>
-                <Box display="flex" justifyContent="center">
-                <TimeField
-                  label="Uncontrolled field"
-                  defaultValue={dayjs('2022-04-17T15:30')}
-                />
-                </Box>
+               <Grid item xs = {6}>                
+                  <SelectorMenu label='Day' options={dayOptions} day={day} handleChange = {handleDayChange}></SelectorMenu>
               </Grid>          
-              <Grid item xs = {6} >
-                <Box display="flex" justifyContent='center'>
-                  
-                </Box>
+              <Grid item xs = {6} >                
+                  <SelectorMenu label = 'Gender' options={genderOptions} gender={gender} handleChange = {handleGenderChange}></SelectorMenu>
+              </Grid>
+              <Grid item xs = {12}>                
+                  <SelectorMenu  label = 'Vehicle Type' options={vehicleOptions} vehicle={vehicle} handleChange = {handleVehicleChange}></SelectorMenu>                
               </Grid>
 
             <Grid item xs={12}>
-              <Paper>
-                <Typography>test3</Typography>
-              </Paper>
+              <Box sx={{border:1}}>
+                {/*Map preview */}
+              </Box>
             </Grid>
           </Grid>
         </Box>

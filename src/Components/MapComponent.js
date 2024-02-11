@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet'
 import { Box } from '@mui/material';
 //NOTEs: DO NOT import "leaflet/dist/leaflet.css" BREAKS MARKER ICON
-
+import RoutingControl from './MapRouting'
+import { LayersControl } from 'react-leaflet';
 
 const ComponentResize = () => {
   const map = useMap();
@@ -28,30 +29,44 @@ const testLocations = [
     coordinates: [53.3813, -6.59],
   }
 ];
+
+
+//journey route
+const maps = {
+  base: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+};
 const MapComponent = () => {
+
+  //use States
+  const [map, setMap] = useState(null);
+  const [start, setStart] = useState([53.3847, -6.6006])
+  const [end, setEnd] = useState([53.3813, -6.59])
   return (
     <Box sx={{maxHeight: '70%', border:1, paddingLeft:5, maxWidth: '99%', paddingTop: 2, paddingBottom:2}}>
       <MapContainer        
         center={[53.3813, -6.59]}
         zoom={14}
         zoomControl={true}
-        scrollWheelZoom={true}
-        style={{ height: '60vh', width: '90%', display: 'flex', justifyContent:'center'}}
+        scrollWheelZoom={false}
+        style={{ height: '60vh', width: '95%', display: 'flex', justifyContent:'center'}}
+        whenCreated={map => setMap(map)}
       >
         <ComponentResize />
-        <TileLayer
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        <RoutingControl 
+          position={'topright'} 
+          start={start} 
+          end={end} 
+          color={'red'} 
         />
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked name="Map">
+            <TileLayer
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              url={maps.base}
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
         
-        {testLocations.map((item) => (
-        <Marker position={item.coordinates}>
-          <Popup>
-            <h1>{item.title}</h1>
-            <p>{item.description}</p>
-          </Popup>
-        </Marker>
-      ))}
 
       </MapContainer>
     </Box>

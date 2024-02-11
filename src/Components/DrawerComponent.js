@@ -1,60 +1,46 @@
-import { Drawer,ListItem,ListItemIcon, ListItemText, Button, List} from "@mui/material";
-import HomeOutlined from "@mui/icons-material/HomeOutlined";
-import ExploreIcon  from "@mui/icons-material/HomeOutlined";
-import CrisisAlertIcon from "@mui/icons-material/HomeOutlined";
-import AppsIcon from '@mui/icons-material/Apps';
-import MenuIcon from "@mui/icons-material/Menu";
-import makeStyles from "@mui/system";
-import { useState } from "react";
+import React from "react";
+import { Drawer, ListItem, ListItemIcon, ListItemText, Box, Toolbar, List } from "@mui/material";
+import ListItemButton from '@mui/material/ListItemButton';
+import { NavLink } from 'react-router-dom';
+import HomeOutlined from '@mui/icons-material/HomeOutlined';
+import ExploreIcon from '@mui/icons-material/Explore';
+import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 
-const data = [
-    { name: "Home", icon: <HomeOutlined />,},
-    { name: "Map", icon: <ExploreIcon /> },
-    { name: "Risk", icon: <CrisisAlertIcon /> },
+
+const DrawerComponent = () => {
+  const data = [
+    { name: "Home", icon: HomeOutlined, path: "/Home"},
+    { name: "Map", icon: ExploreIcon, path: "/Map" },
+    { name: "Risk", icon: CrisisAlertIcon, path: "/Risk" },
   ];
-
-export const DrawerComponent = () => {
-  
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleDrawer = (open) => (event) => {
-      if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-        return;
-      }
-      setIsOpen(open);
-    };
-
-    const list = () => (
-      <div
-        role="presentation"
-        onClick={toggleDrawer(false)}
-        onKeyDown={toggleDrawer(false)}
-      >
+  return (
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: 1 / 4,
+        flexShrink: 0,
+        [`& .MuiDrawer-paper`]: { width: 1 / 4, boxSizing: 'border-box' },
+      }}
+    >
+      <Toolbar />
+      {/* fix list item height in cleanup */}
+      <Box sx={{ overflow: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100' }}>
         <List>
-          {/* Add ListItem and ListItemIcon for each menu item */}
-          <ListItem button key="Item1">
-            <ListItemIcon>{/* Icon for Item1 */}</ListItemIcon>
-            <ListItemText primary="Item1" />
-          </ListItem>
-          {/* Repeat for other items */}
+          {data.map((item) => (
+            <ListItem key={item.name} disablePadding>
+              <ListItemButton component={NavLink} to={item.path} activeClassName="Mui-selected" exact>
+                <ListItemIcon>
+                  {/* Render the icon component */}
+                  <item.icon />
+                </ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
         </List>
-      </div>
-    );
-
-    return (
-        <div>
-        <AppsIcon
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          onClick={toggleDrawer(true)}
-        >
-          <MenuIcon />
-        </AppsIcon>
-        <Drawer anchor="left" open={isOpen} onClose={toggleDrawer(false)}>
-          {list()}
-        </Drawer>
-      </div>
-      );
-
+      </Box>
+    </Drawer>
+  )
 }
+
 export default DrawerComponent

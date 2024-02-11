@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   top: 'auto',
   bottom: 0,
+  height: 60,
   zIndex: 9999 //so footer overwirtes drawer 
 }));
 

@@ -66,29 +66,14 @@ export default function Dashboard() {
     setVehicle(event.target.value)
   }
 
-  //used to hide AppBar when scrolling with application 
-  function HideOnScroll(props) {
-    const { children, window } = props;
-    // Note that you normally won't need to set the window ref as useScrollTrigger
-    // will default to window.
-    // This is only being set here because the demo is in an iframe.
-    const trigger = useScrollTrigger({
-      target: window ? window() : undefined,
-    });
   
-    return (
-      <Slide appear={false} direction="down" in={!trigger}>
-        {children}
-      </Slide>
-    );
-  }
   //elements to be rendered
   return (
     <div>
       <Box sx={{ display: 'flex', }}>
         <CssBaseline />
         {/*TOP appbar component */}
-        <AppBar AppBar position="fixed" enableColorOnDark sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <AppBar AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <Toolbar >
             <StyledTypography
               component="h1"

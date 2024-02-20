@@ -16,6 +16,7 @@ const ComponentResize = () => {
   return null;
 };
 
+
 //test markers, should be maynooth uni & town
 const testLocations = [
   {
@@ -39,24 +40,38 @@ const MapComponent = () => {
 
   //use States
   const [map, setMap] = useState(null);
-  const [start, setStart] = useState([53.3847, -6.6006])
+  const [start, setStart] = useState([53.095, -7.9129])
   const [end, setEnd] = useState([53.3813, -6.59])
+  const [route, setRouteInfo] = useState(null); //contains route directions
+
+
+  //handler for when a new route is selected
+
+  // Callback function to be called when a route is selected
+  const handleRouteSelected = (route) => {
+    //console.log('INSIDE HANDLEROUTE', route) works
+    
+    setRouteInfo(route); // Update the state with the selected route data
+    console.log('Route selected:', route);
+  };
+
   return (
-    <Box sx={{maxHeight: '70%', border:1, paddingLeft:5, maxWidth: '99%', paddingTop: 2, paddingBottom:2}}>
-      <MapContainer        
+    <Box sx={{ maxHeight: '70%', border: 1, paddingLeft: 5, maxWidth: '99%', paddingTop: 2, paddingBottom: 2 }}>
+      <MapContainer
         center={[53.3813, -6.59]}
         zoom={14}
         zoomControl={true}
         scrollWheelZoom={false}
-        style={{ height: '60vh', width: '95%', display: 'flex', justifyContent:'center'}}
+        style={{ height: '60vh', width: '95%', display: 'flex', justifyContent: 'center' }}
         whenCreated={map => setMap(map)}
       >
         <ComponentResize />
-        <RoutingControl 
+         <RoutingControl 
           position={'topright'} 
           start={start} 
           end={end} 
-          color={'red'} 
+          color={'red'}
+          onRouteSelected={handleRouteSelected} // Pass the callback as a prop
         />
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Map">
@@ -66,7 +81,7 @@ const MapComponent = () => {
             />
           </LayersControl.BaseLayer>
         </LayersControl>
-        
+
 
       </MapContainer>
     </Box>

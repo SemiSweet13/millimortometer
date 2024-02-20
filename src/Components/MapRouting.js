@@ -11,7 +11,8 @@ import { geocoders } from "leaflet-control-geocoder";
     alert('Showing route '+ JSON.stringify(route.inputWaypoints, null, 2))
   });
 */
-const createRoutineMachineLayer = ({ position, start, end, color }) => {
+//using a callback with onRouteSelected so map auto updates and obtains the new directions needed
+const createRoutineMachineLayer = ({ position, start, end, color, onRouteSelected }) => {
   const instance = L.Routing.control({
     collapsible:true, //shows an x button to close route popup window, defaults to false on larger screens
     position,
@@ -32,13 +33,27 @@ const createRoutineMachineLayer = ({ position, start, end, color }) => {
     geocoder: L.Control.Geocoder.nominatim(),
     
     
-  })
-  console.log(instance) 
-  console.log(instance.options.selectedRoute)
+  }).on('routeselected', function(e) {
+    const route = e.route;
+    console.log('Selected route:', route);
 
+    //Possible code breaker, currently testing ////////////////////////////////////////
+    // Call the callback with the route data
+    if (onRouteSelected) {
+      onRouteSelected(route);
+    }
+
+    //Example: Access waypoints, summary, or any other property
+    //console.log('Waypoints:', route.waypoints);
+    //console.log('Summary (distance, time):', route.summary);
+    
+  });
+  // console.log(instance) 
+  // console.log(instance.options.selectedRoute)
   return instance;
 };
 
 const RoutingMachine = createControlComponent(createRoutineMachineLayer);
+console.log('Logging the routing machine in MapRouting.js', RoutingMachine)
 
 export default RoutingMachine;

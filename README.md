@@ -68,3 +68,12 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+Had to chnage the execution policy on powershell to run venv for python 
+Set-ExecutionPolicy unrestricted https://learn.microsoft.com/en-us/archive/msdn-technet-forums/964636ad-347e-4b23-8f7a-f36a558115dd
+
+### Running flask 
+To run flask cd to millimortometer\src\Backend and in the venv python terminal `python -m flask run`
+### pip installs used
+python -m pip install flask

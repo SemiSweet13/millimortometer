@@ -125,7 +125,7 @@ export default function Dashboard() {
             <Grid item xs={6} >
               <Box display="flex" justifyContent='center'>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <TimeField label="Basic time field" fullWidth />
+                  <TimeField label="Time of Day" fullWidth />
                 </LocalizationProvider>
               </Box>
             </Grid>

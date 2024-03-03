@@ -10,6 +10,8 @@ import Button from '@mui/material/Button';
 import SelectorMenu from "../Components/SelectorMenu";
 import MapComponent from "../Components/MapComponent";
 import DrawerComponent from "../Components/DrawerComponent"
+import CustomAlert from "../Components/Alert";
+import { Util } from "leaflet";
 
 
 const dayOptions = [
@@ -27,9 +29,19 @@ const genderOptions = [
   { value: 'Female', label: 'Female' },
   { value: 'Prefer Not to Say', label: 'Prefer Not to Say' }
 ]
-const vehicleOptions = [
-  { value: 'Car', label: 'Car' },
-  { value: 'MotorBike', label: 'MotorBike' }
+const monthOptions = [
+  { value: 'January', label: 'January' },
+  { value: 'February', label: 'February' },
+  { value: 'March', label: 'March' },
+  { value: 'April', label: 'April' },
+  { value: 'May', label: 'May' },
+  { value: 'June', label: 'June' },
+  { value: 'July', label: 'July' },
+  { value: 'August', label: 'August' },
+  { value: 'September', label: 'September' },
+  { value: 'October', label: 'October' },
+  { value: 'November', label: 'November' },
+  { value: 'December', label: 'December' }
 ]
 const drawerWidth = 200;
 
@@ -43,44 +55,95 @@ export default function Dashboard() {
   //useStates needed for the dashboard
   const [day, setDay] = React.useState('')
   const [gender, setGender] = React.useState('')
-  const [vehicle, setVehicle] = React.useState('')
+  const [month, setMonth] = React.useState('')
+  const [age, setAge] = useState('')
+  const [time, setTime] = useState(null)
 
   const [hasAge, setHasAge] = useState(false);
   const [hasGender, setHasGender] = useState(false);
   const [hasTime, setHasTime] = useState(false);
-  const [hasVehicle, setHasVehicle] = useState(false);
+  const [hasMonth, setHasMonth] = useState(false);
   const [hasDay, setHasDay] = useState(false);
 
+  //alert states needed
+  const [ageAlert, setAgeAlert] = useState(false);
+  const [timeAlert, setTimeAler] = useState(false);
+  const [genderAlert, setgenderAlert] = useState(false);
+  const [dayAlert, setDayAlert] = useState(false);
+
+  const [allowCall, setAllowCall] = useState(false);
   //Using a UseState Object to check all forms for validation
   //handle change functions
   const handleDayChange = (event) => {
     setDay(event.target.value)
     //if there is a chosen day update validator state
-    if (day) {
+    if (day != null) {
       setHasDay(true)
     }
   }
   const handleGenderChange = (event) => {
     setGender(event.target.value)
-    if (gender) {
+    if (gender != null) {
       setHasGender(true)
     }
   }
-  const handleVehicleChange = (event) => {
-    setVehicle(event.target.value)
-    if (vehicle) {
-      setHasVehicle(true)
+  const handleMonthChange = (event) => {
+    setMonth(event.target.value)
+    if (month != null) {
+      setHasMonth(true)
     }
   }
-  //Section to VALIDATE all Input Forms  
-  const handleAgeValidation = (val) => {
-    //only accepts age range of 17-120 inclusive
-    if (val >= 17 || val <= 120) {
-      //set hasAge to true
+  const handleTimeChange = (event) => {
+    console.log(event)
+    if (event != null) {
+      setTime(event['$d'])
+      setHasTime(true)
+    }
+    else{
+      setHasTime(false)
+    }
+  }
+  const handleOnBlurAge = (event) => {
+    //so will validate age this way instead, this will be called when the driver age field is not selected,
+    //i.e. when its clicked off of, not only works once per render it seems
+    const value = event.target.value
+    let validatedValue = value;
+
+    // Ensure the value is a number
+    if (!isNaN(value) && value !== '') {
+      // Convert the value to a number for comparison
+      const numericValue = Number(value);
+      // Check if the value is within the desired range
+      if (numericValue < 17 || numericValue > 120) {
+        setAgeAlert(true)
+      }
+      setAge(validatedValue);
       setHasAge(true)
     }
-    else {
-      setHasAge(false)
+  }
+
+  const handleRiskClick = () => {
+    console.log("Risk Button Clicked")
+    //log all varibles TEST DELETE AFTER
+    console.log('LOGGING USE STATES VARIABLES \n', month, day, age, gender, time)
+    //here we check that all forms are valid and decide if we allow the backend call to be made
+    //if not we will set an appropriate alert state to tell our user the issue
+    console.log('has Time', hasTime)
+    console.log('has gender', hasGender)
+    console.log('has day', hasDay)
+    console.log('has Age', hasAge)
+    console.log('has Month', hasMonth)
+    if (hasGender && hasTime && hasDay && hasAge && hasMonth) {
+      console.log('inside if statement')
+      console.log('age alert status:', ageAlert)
+      if (!ageAlert) { //if alert is false call can be made 
+        setAllowCall(true)
+      } else {
+        setAgeAlert(false)
+      }
+    }
+    if (allowCall) {
+      console.log('CALL SHOULD BE MADE TO BACKEND')
     }
   }
 
@@ -115,17 +178,26 @@ export default function Dashboard() {
               <Box display="flex" justifyContent="center">
                 <TextField fullWidth
                   label='Driver Age' type="number"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)} //sets age then will be checked with onBlur
+                  onBlur={handleOnBlurAge}
                   inputProps={{
                     min: 17,
-                    max: 120
-                  }}>
+                    max: 120,
+                    pattern: "[0-9]*"
+                    //this only works if arrows are used so we need a handler
+                  }}
+                >
                 </TextField>
               </Box>
             </Grid>
             <Grid item xs={6} >
               <Box display="flex" justifyContent='center'>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <TimeField label="Time of Day" fullWidth />
+                  <TimeField ampm={false} label="Time of Day" fullWidth
+                    onChange={handleTimeChange}
+                  />
+
                 </LocalizationProvider>
               </Box>
             </Grid>
@@ -138,21 +210,23 @@ export default function Dashboard() {
               <SelectorMenu label='Gender' options={genderOptions} gender={gender} handleChange={handleGenderChange}></SelectorMenu>
             </Grid>
             <Grid item xs={12}>
-              <SelectorMenu label='Vehicle Type' options={vehicleOptions} vehicle={vehicle} handleChange={handleVehicleChange}></SelectorMenu>
+              <SelectorMenu label='Month' options={monthOptions} month={month} handleChange={handleMonthChange}></SelectorMenu>
             </Grid>
           </Grid>
           <div style={{ paddingLeft: 15 }}>
             <MapComponent>
             </MapComponent>
           </div>
-          <Box component="main" sx={{ flexGrow: 1, p: 2}}>
-            <Button size="large" variant="outlined" fullWidth>Calculate Risk</Button>
+          <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
+            <Button size="large" variant="outlined" fullWidth onClick={handleRiskClick}>Calculate Risk</Button>
           </Box>
-
-
         </Box>
-
         <FooterComponent></FooterComponent>
+        {/*this section covers the alerts needed for the input */}
+        {ageAlert && (
+          <CustomAlert msg={'Driver age must be between 17-120'} title={'Driver Age Error Warning'} />
+        )}
+
       </Box>
     </div>//end of container div
   )

@@ -1,5 +1,13 @@
 import React from "react";
-import { AppBar, CssBaseline, Toolbar, Typography, Grid, Box, TextField } from "@mui/material";
+import { AppBar, CssBaseline, Toolbar, Typography, Grid, Box, TextField, Paper } from "@mui/material";
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
+import StepContent from "@mui/material/StepContent";
+import MobileStepper from "@mui/material/MobileStepper";
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import { useTheme } from '@mui/material/styles';
 import { useState } from "react";
 import FooterComponent from "../Components/Footer";
 import { styled } from '@mui/material/styles';
@@ -12,6 +20,7 @@ import MapComponent from "../Components/MapComponent";
 import DrawerComponent from "../Components/DrawerComponent"
 import CustomAlert from "../Components/Alert";
 import { Util } from "leaflet";
+import { render } from "@testing-library/react";
 
 
 const dayOptions = [
@@ -65,6 +74,31 @@ export default function Dashboard() {
   const [hasMonth, setHasMonth] = useState(false);
   const [hasDay, setHasDay] = useState(false);
 
+  //states for stepper
+  const [activeStep, setActiveStep] = useState(0);
+  const stepTheme = useTheme();
+  const steps = [
+    {
+      label: 'Confirm User Input',
+      description:  `For each ad campaign that you create, you can control how much
+      you're willing to spend on clicks and conversions, which networks
+      and geographical locations you want your ads to show on, and more.`
+    },
+    {
+      label: 'Driver Age',
+      description: age
+    },
+    {
+      label: 'Time of Day',
+      description: time
+    },
+    {
+      label: 'Calculate Risk'
+    }
+  ]
+  const maxSteps = steps.length
+
+
   //alert states needed
   const [ageAlert, setAgeAlert] = useState(false);
   const [timeAlert, setTimeAler] = useState(false);
@@ -79,18 +113,21 @@ export default function Dashboard() {
     //if there is a chosen day update validator state
     if (day != null) {
       setHasDay(true)
+      //handleValidation()
     }
   }
   const handleGenderChange = (event) => {
     setGender(event.target.value)
     if (gender != null) {
       setHasGender(true)
+      // handleValidation()
     }
   }
   const handleMonthChange = (event) => {
     setMonth(event.target.value)
     if (month != null) {
       setHasMonth(true)
+      //handleValidation()
     }
   }
   const handleTimeChange = (event) => {
@@ -98,8 +135,9 @@ export default function Dashboard() {
     if (event != null) {
       setTime(event['$d'])
       setHasTime(true)
+      // handleValidation()
     }
-    else{
+    else {
       setHasTime(false)
     }
   }
@@ -119,6 +157,7 @@ export default function Dashboard() {
       }
       setAge(validatedValue);
       setHasAge(true)
+      //handleValidation()
     }
   }
 
@@ -142,12 +181,43 @@ export default function Dashboard() {
         setAgeAlert(false)
       }
     }
-    if (allowCall) {
+    else {
+      setAllowCall(false)
+      console.log('CALL SHOULD BE not be MADE TO BACKEND')
+    }
+    if (allowCall && !ageAlert) {
       console.log('CALL SHOULD BE MADE TO BACKEND')
     }
   }
 
+  /* const handleValidation = () =>{
+  //   //just check that all fields are met if so we set allowClick/call to true which will then ungray the button
+  //   if (hasGender && hasTime && hasDay && hasAge && hasMonth) {      
+  //     if (!ageAlert) { //if alert is false call can be made 
+  //       setAllowCall(true)     
+  //     } else {
+  //       setAgeAlert(false)
+  //       setAllowCall(false)              
+  //     }
+  //   }
+  // }
+  // const testButtonClick = () => {
+  //   console.log('Button clicked backend can be called') 
+  // }
+  */
+
+  //stepper functions
+  const handleNextStep = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+  }
+  const handleBackStep = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+  }
+  const handleStepReset = () => {
+    setActiveStep(0)
+  }
   //elements to be rendered
+
   return (
     <div>
       <Box sx={{ display: 'flex', }}>
@@ -217,10 +287,58 @@ export default function Dashboard() {
             <MapComponent>
             </MapComponent>
           </div>
-          <Box component="main" sx={{ flexGrow: 1, p: 2 }}>
-            <Button size="large" variant="outlined" fullWidth onClick={handleRiskClick}>Calculate Risk</Button>
+
+          {/* <Button disabled={!allowCall} size="large" variant="outlined" fullWidth >Calculate Risk</Button> */}
+          <Box sx={{ maxWidth: 400, flexGrow: 1, alignContent: 'center', justifyContent: 'center'}}>
+            <Paper
+              square
+              elevation={0}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                height: 50,
+                pl: 2,
+                bgcolor: 'background.default',
+              }}
+            >
+              <Typography>{steps[activeStep].label}</Typography>
+            </Paper>
+            <Box sx={{ height: 255, maxWidth: 400, width: '100%', p: 2 }}>
+              {steps[activeStep].description}
+            </Box>
+            <MobileStepper
+              variant="dots"
+              steps={maxSteps}
+              position="static"
+              activeStep={activeStep}
+              nextButton={
+                <Button
+                  size="small"
+                  onClick={handleNextStep}
+                  disabled={activeStep === maxSteps - 1}
+                >
+                  Next
+                  {stepTheme.direction === 'rtl' ? (
+                    <KeyboardArrowLeft />
+                  ) : (
+                    <KeyboardArrowRight />
+                  )}
+                </Button>
+              }
+              backButton={
+                <Button size="small" onClick={handleBackStep} disabled={activeStep === 0}>
+                  {stepTheme.direction === 'rtl' ? (
+                    <KeyboardArrowRight />
+                  ) : (
+                    <KeyboardArrowLeft />
+                  )}
+                  Back
+                </Button>
+              }
+            />
           </Box>
         </Box>
+
         <FooterComponent></FooterComponent>
         {/*this section covers the alerts needed for the input */}
         {ageAlert && (

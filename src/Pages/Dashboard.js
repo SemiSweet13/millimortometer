@@ -1,12 +1,5 @@
 import React from "react";
 import { AppBar, CssBaseline, Toolbar, Typography, Grid, Box, TextField, Paper } from "@mui/material";
-import Stepper from "@mui/material/Stepper";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
-import StepContent from "@mui/material/StepContent";
-import MobileStepper from "@mui/material/MobileStepper";
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { useTheme } from '@mui/material/styles';
 import { useState } from "react";
 import FooterComponent from "../Components/Footer";
@@ -22,6 +15,10 @@ import CustomAlert from "../Components/Alert";
 import { Util } from "leaflet";
 import { render } from "@testing-library/react";
 
+//conext
+import { useRoute } from "../Components/RouteContext";
+//backend sned data
+import { sendPayloadToBackend } from "../Calls/SendCall";
 
 const dayOptions = [
   { value: 'Monday', label: 'Monday' },
@@ -61,6 +58,10 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 }));
 //component called in index.js
 export default function Dashboard() {
+  //ROUTE CONTEXT
+  const { route } = useRoute();
+  //console.log('ROUTE CONTEXT INSIDE DASHBOARD', route) //works!!!!!
+
   //useStates needed for the dashboard
   const [day, setDay] = React.useState('')
   const [gender, setGender] = React.useState('')
@@ -77,27 +78,6 @@ export default function Dashboard() {
   //states for stepper
   const [activeStep, setActiveStep] = useState(0);
   const stepTheme = useTheme();
-  const steps = [
-    {
-      label: 'Confirm User Input',
-      description:  `For each ad campaign that you create, you can control how much
-      you're willing to spend on clicks and conversions, which networks
-      and geographical locations you want your ads to show on, and more.`
-    },
-    {
-      label: 'Driver Age',
-      description: age
-    },
-    {
-      label: 'Time of Day',
-      description: time
-    },
-    {
-      label: 'Calculate Risk'
-    }
-  ]
-  const maxSteps = steps.length
-
 
   //alert states needed
   const [ageAlert, setAgeAlert] = useState(false);
@@ -190,6 +170,23 @@ export default function Dashboard() {
     }
   }
 
+  const handleSendCall = () => {
+    const dataToSend = {
+      Age: age, 
+      Time: time, 
+      Gender: gender, 
+      Day: day, 
+      Month: month,
+      Route: route.instructions
+    }
+    sendPayloadToBackend(dataToSend).then(response => {
+      // Handle the response from the backend
+      console.log('Backend response:', response);
+    })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
   /* const handleValidation = () =>{
   //   //just check that all fields are met if so we set allowClick/call to true which will then ungray the button
   //   if (hasGender && hasTime && hasDay && hasAge && hasMonth) {      
@@ -288,55 +285,7 @@ export default function Dashboard() {
             </MapComponent>
           </div>
 
-          {/* <Button disabled={!allowCall} size="large" variant="outlined" fullWidth >Calculate Risk</Button> */}
-          <Box sx={{ maxWidth: 400, flexGrow: 1, alignContent: 'center', justifyContent: 'center'}}>
-            <Paper
-              square
-              elevation={0}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                height: 50,
-                pl: 2,
-                bgcolor: 'background.default',
-              }}
-            >
-              <Typography>{steps[activeStep].label}</Typography>
-            </Paper>
-            <Box sx={{ height: 255, maxWidth: 400, width: '100%', p: 2 }}>
-              {steps[activeStep].description}
-            </Box>
-            <MobileStepper
-              variant="dots"
-              steps={maxSteps}
-              position="static"
-              activeStep={activeStep}
-              nextButton={
-                <Button
-                  size="small"
-                  onClick={handleNextStep}
-                  disabled={activeStep === maxSteps - 1}
-                >
-                  Next
-                  {stepTheme.direction === 'rtl' ? (
-                    <KeyboardArrowLeft />
-                  ) : (
-                    <KeyboardArrowRight />
-                  )}
-                </Button>
-              }
-              backButton={
-                <Button size="small" onClick={handleBackStep} disabled={activeStep === 0}>
-                  {stepTheme.direction === 'rtl' ? (
-                    <KeyboardArrowRight />
-                  ) : (
-                    <KeyboardArrowLeft />
-                  )}
-                  Back
-                </Button>
-              }
-            />
-          </Box>
+          <Button size="large" variant="outlined" fullWidth onClick={handleSendCall}>Calculate Risk</Button>
         </Box>
 
         <FooterComponent></FooterComponent>

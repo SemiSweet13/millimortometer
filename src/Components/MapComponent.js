@@ -5,6 +5,8 @@ import { Box } from '@mui/material';
 //NOTEs: DO NOT import "leaflet/dist/leaflet.css" BREAKS MARKER ICON
 import RoutingControl from './MapRouting'
 import { LayersControl } from 'react-leaflet';
+//lifting context with route
+import { useRoute } from './RouteContext';
 
 const ComponentResize = () => {
   const map = useMap();
@@ -37,6 +39,7 @@ const maps = {
   base: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 };
 const MapComponent = () => {
+  const { setRoute } = useRoute(); // Destructure setRoute for updating the route
 
   //use States
   const [map, setMap] = useState(null);
@@ -50,7 +53,7 @@ const MapComponent = () => {
   // Callback function to be called when a route is selected
   const handleRouteSelected = (route) => {
     //console.log('INSIDE HANDLEROUTE', route) works
-    
+    setRoute(route); // Update the route in the context
     setRouteInfo(route); // Update the state with the selected route data
     console.log('Route selected:', route);
   };

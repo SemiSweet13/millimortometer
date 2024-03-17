@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime
 import re
+from Statistics.statistics import MilliMortProcesses
+
 
 # Create a Blueprint for the API routes
 api_blueprint = Blueprint('api', __name__)
@@ -70,6 +72,44 @@ def round_distance(num):
     num = round(num, 2)
     return num
 
+def format_time(time):
+    timestamp = time
+    # Parse the timestamp into a datetime object
+    dt_object = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
+    # Format the datetime object to only get hours and minutes
+    hours_minutes = dt_object.strftime("%H:%M")
+    print(hours_minutes)  # This will print "23:15"
+    return hours_minutes
+
+def get_millimort(basic_data_array, journey_distance):
+    ''' Get the calculation for
+        1) General fatality rate per Km driven as base
+        2) Age and Gender of person
+        3) Time of Day, Day, and Month
+        
+        Uses MiliMortProcesses to get figures
+    
+        Returns: a number which is the millimort of the journey
+    '''
+    #format time string to be in hr:min e.g. 23:15, 00:01, 15:28
+    time_str = format_time(basic_data_array[1])
+    statisticalProcessor = MilliMortProcesses()
+    fatal_rate_per_km = statisticalProcessor.calculate_fatalities_per_km()
+    age_contribution = statisticalProcessor.get_age_calculation(int(basic_data_array[0]))
+    time_contribution = statisticalProcessor.get_time_frame_calculation(time_str)
+    gender_contribution = statisticalProcessor.get_gender_calculation(basic_data_array[2])
+    day_contribution = statisticalProcessor.get_day_calculation(basic_data_array[3])
+    month_contribution = statisticalProcessor.get_month_calculation(basic_data_array[4])
+    print('INSIDE GET MILLIMORT FUNCTION')
+    print(fatal_rate_per_km)
+    print(age_contribution)
+    print(gender_contribution)
+    print(day_contribution)
+    print(month_contribution)
+    print(time_contribution)
+
+    
+
 @api_blueprint.route('/api/sentdata', methods=['POST'])
 def receive_data():
     data = request.json
@@ -81,8 +121,7 @@ def receive_data():
     filtered_roads = split_road_types(filtered_route_array)
     print('printing filtered routes in main')
     for direction in filtered_roads:
-        print(direction)
-        
+        print(direction)       
     #same regex
     road_type_regex = re.compile(r'\b(?:L|R|N|M)\d*\b|\((?:L|R|N|M)\d*\)')
     # Initialize variables for road type
@@ -119,12 +158,13 @@ def receive_data():
     m_road_distance = round_distance(m_road_distance)
     gen_road_distance = round_distance(gen_road_distance)
     total_road_distance = round_distance(total_road_distance)
-    print(f"L road distance: {l_road_distance} km")
-    print(f"N road distance: {n_road_distance } km")
-    print(f"M road distance: {m_road_distance } km")
-    print(f"R road distance: {r_road_distance } km")
-    print(f"General road distance: {gen_road_distance } km")
-    print(f"Total road distance: {total_road_distance } km")
+    # print(f"L road distance: {l_road_distance} km")
+    # print(f"N road distance: {n_road_distance } km")
+    # print(f"M road distance: {m_road_distance } km")
+    # print(f"R road distance: {r_road_distance } km")
+    # print(f"General road distance: {gen_road_distance } km")
+    # print(f"Total road distance: {total_road_distance } km")
+    get_millimort(filtered_basic_data, total_road_distance)
 
 
 

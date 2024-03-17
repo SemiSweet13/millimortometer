@@ -95,20 +95,26 @@ def get_millimort(basic_data_array, journey_distance):
     time_str = format_time(basic_data_array[1])
     statisticalProcessor = MilliMortProcesses()
     fatal_rate_per_km = statisticalProcessor.calculate_fatalities_per_km()
-    age_contribution = statisticalProcessor.get_age_calculation(int(basic_data_array[0]))
-    time_contribution = statisticalProcessor.get_time_frame_calculation(time_str)
-    gender_contribution = statisticalProcessor.get_gender_calculation(basic_data_array[2])
-    day_contribution = statisticalProcessor.get_day_calculation(basic_data_array[3])
-    month_contribution = statisticalProcessor.get_month_calculation(basic_data_array[4])
+    age_contribution = statisticalProcessor.get_age_calculation(int(basic_data_array[0])) / 100
+    time_contribution = statisticalProcessor.get_time_frame_calculation(time_str) / 100
+    gender_contribution = statisticalProcessor.get_gender_calculation(basic_data_array[2]) / 100
+    day_contribution = statisticalProcessor.get_day_calculation(basic_data_array[3]) /100 
+    month_contribution = statisticalProcessor.get_month_calculation(basic_data_array[4]) /100
     print('INSIDE GET MILLIMORT FUNCTION')
-    print(fatal_rate_per_km)
-    print(age_contribution)
-    print(gender_contribution)
-    print(day_contribution)
-    print(month_contribution)
-    print(time_contribution)
+    print('Rate per Km travlled: '"{:.25f}".format(fatal_rate_per_km))
+    print('Age figure based on age of:',basic_data_array[0], age_contribution)
+    print('Gender fig based on gender:', basic_data_array[2], gender_contribution)
+    print('Day figure based on day:', basic_data_array[3],day_contribution)
+    print('Month fig based on month:',basic_data_array[4],month_contribution)
+    print('Time fig based on time:',time_str,time_contribution)
+    journey_fatal_rate = fatal_rate_per_km * journey_distance
+    print('Fatal rate per journey: '"{:.25f}".format(journey_fatal_rate))
 
-    
+    millimort = journey_fatal_rate * month_contribution * day_contribution * gender_contribution * time_contribution * age_contribution
+    # Print the millimort rate
+    print("Adjusted Fatal Rate Per Journey:", millimort)
+    print("Adjusted Fatal Rate Per Journey: {:.25f}".format(millimort))
+    return millimort
 
 @api_blueprint.route('/api/sentdata', methods=['POST'])
 def receive_data():

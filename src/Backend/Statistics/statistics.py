@@ -166,8 +166,6 @@ class MilliMortProcesses:
     def get_time_frame_calculation(self, time_str):
         """Returns the figure associated with the given time (formatted as 'HH:MM')."""
         # Time frames and their corresponding figures
-        # for boundary cases we start on the hour and end at 59mins, 
-        #in future could base off what time frame maority of journey takes place in
         time_frames = [
             (('00:00', '03:59'), 13.9613),
             (('04:00', '07:59'), 9.1495),
@@ -177,13 +175,17 @@ class MilliMortProcesses:
             (('20:00', '23:59'), 17.9716),
         ]
         
+        # Convert input time_str to a datetime.time object for comparison
+        input_time = datetime.datetime.strptime(time_str, '%H:%M').time()
+        # Loop through the time frames to find the matching range
         for (start_str, end_str), figure in time_frames:
             start_time = datetime.datetime.strptime(start_str, '%H:%M').time()
             end_time = datetime.datetime.strptime(end_str, '%H:%M').time()
             
-        # Check if input_time falls within the current time frame
-        if start_time <= time_str <= end_time:
-            return figure
+            # Check if input_time falls within the current time frame
+            if start_time <= input_time <= end_time:
+                return figure
+        
         # Return a default value or message if the time does not match any frame
         return "Invalid time"
 

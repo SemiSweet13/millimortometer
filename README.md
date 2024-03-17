@@ -77,3 +77,5 @@ Set-ExecutionPolicy unrestricted https://learn.microsoft.com/en-us/archive/msdn-
 To run flask cd to millimortometer\src\Backend and in the venv python terminal `python -m flask run`
 ### pip installs used
 python -m pip install flask
+pip install flask_cors
+pip install pandas

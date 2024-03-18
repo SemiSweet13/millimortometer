@@ -1,7 +1,7 @@
 import React from "react";
 import { AppBar, CssBaseline, Toolbar, Typography, Grid, Box, TextField, Paper } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FooterComponent from "../Components/Footer";
 import { styled } from '@mui/material/styles';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -65,8 +65,17 @@ export default function Dashboard() {
   const [day, setDay] = React.useState('')
   const [gender, setGender] = React.useState('')
   const [month, setMonth] = React.useState('')
-  const [age, setAge] = useState('')
-  const [time, setTime] = useState(null)
+  const [age, setAge] = React.useState('')
+  const [time, setTime] = React.useState(null)
+
+  React.useEffect(() => {
+    // Reset states on component mount
+    setDay('');
+    setGender('');
+    setMonth('');
+    setAge('');
+    setTime(null);
+  }, []);
 
   const [hasAge, setHasAge] = useState(false);
   const [hasGender, setHasGender] = useState(false);
@@ -74,15 +83,24 @@ export default function Dashboard() {
   const [hasMonth, setHasMonth] = useState(false);
   const [hasDay, setHasDay] = useState(false);
 
-  //states for stepper
-  const [activeStep, setActiveStep] = useState(0);
-  const stepTheme = useTheme();
-
-  //alert states needed
+  //alert states needed, validation is now done through backend for a more clean and efficient approach
+  //alert keys used to make sure alerts re render if error happens on next/subsequent call
+  const [alertKeys, setAlertKeys] = useState({
+    noDataAlert: 0,
+    ageAlert: 0,
+    ageInvalidAlert: 0,
+    timeAlert: 0,
+    monthAlert: 0,
+    dayAlert: 0,
+    genderAlert: 0,
+  })
+  const [noDataAlert, setNoDataAlert] = useState(false);
   const [ageAlert, setAgeAlert] = useState(false);
-  const [timeAlert, setTimeAler] = useState(false);
-  const [genderAlert, setgenderAlert] = useState(false);
+  const [ageInvalidAlert, setAgeInvalidAlert] = useState(false);
+  const [timeAlert, setTimeAlert] = useState(false);
+  const [genderAlert, setGenderAlert] = useState(false);
   const [dayAlert, setDayAlert] = useState(false);
+  const [monthAlert, setMonthAlert] = useState(false)
 
   const [allowCall, setAllowCall] = useState(false);
   //Using a UseState Object to check all forms for validation
@@ -140,78 +158,88 @@ export default function Dashboard() {
     }
   }
 
-  const handleRiskClick = () => {
-    console.log("Risk Button Clicked")
-    //log all varibles TEST DELETE AFTER
-    console.log('LOGGING USE STATES VARIABLES \n', month, day, age, gender, time)
-    //here we check that all forms are valid and decide if we allow the backend call to be made
-    //if not we will set an appropriate alert state to tell our user the issue
-    console.log('has Time', hasTime)
-    console.log('has gender', hasGender)
-    console.log('has day', hasDay)
-    console.log('has Age', hasAge)
-    console.log('has Month', hasMonth)
-    if (hasGender && hasTime && hasDay && hasAge && hasMonth) {
-      console.log('inside if statement')
-      console.log('age alert status:', ageAlert)
-      if (!ageAlert) { //if alert is false call can be made 
-        setAllowCall(true)
-      } else {
-        setAgeAlert(false)
-      }
+  const handleResponseValidation = (response_msg) => {
+    //geenral no data provided alert
+    if (response_msg === 'No User Data in Payload') {
+      setNoDataAlert(true);
+      // Update only the key for noDataAlert
+      setAlertKeys(prevKeys => ({ ...prevKeys, noDataAlert: prevKeys.noDataAlert + 1 }));
     }
     else {
-      setAllowCall(false)
-      console.log('CALL SHOULD BE not be MADE TO BACKEND')
+      setNoDataAlert(false)
     }
-    if (allowCall && !ageAlert) {
-      console.log('CALL SHOULD BE MADE TO BACKEND')
+    //alerts for Age, is it missing or invalid
+    if (response_msg === "Missing or invalid value for 'Age'") {
+      setAgeAlert(true)
+      // Update only the key for noDataAlert
+      setAlertKeys(prevKeys => ({ ...prevKeys, ageAlert: prevKeys.ageAlert + 1 }));
     }
-  }
+    else if (response_msg === 'Age must be between 17 and 120' || response_msg === 'Invalid age format') {
+      setAgeInvalidAlert(true)
+      // Update only the key for noDataAlert
+      setAlertKeys(prevKeys => ({ ...prevKeys, ageInvalidAlert: prevKeys.ageInvalidAlert + 1 }));
+    }
+    else {
+      setAgeAlert(false)
+      setAgeInvalidAlert(false)
+    }
+    //alert for missing time
+    if (response_msg === "Missing or invalid value for 'Time'") {
+      setTimeAlert(true)
+      // Update only the key for noDataAlert
+      setAlertKeys(prevKeys => ({ ...prevKeys, timeAlert: prevKeys.timeAlert + 1 }));
+    } else {
+      setTimeAlert(false)
+    }
+    //alert for day
+    if (response_msg === "Missing or invalid value for 'Day'") {
+      setDayAlert(true)
+      // Update only the key for noDataAlert
+      setAlertKeys(prevKeys => ({ ...prevKeys, dayAlert: prevKeys.dayAlert + 1 }));
+    } else {
+      setDayAlert(false)
+    }
+    //alert for gender
+    if (response_msg === "Missing or invalid value for 'Gender'") {
+      setGenderAlert(true)
+      // Update only the key for noDataAlert
+      setAlertKeys(prevKeys => ({ ...prevKeys, genderAlert: prevKeys.genderAlert + 1 }));
+    } else {
+      setGenderAlert(false)
+    }
+    //alert for month
+    if (response_msg === "Missing or invalid value for 'Month'") {
+      setMonthAlert(true)
+      // Update only the key for noDataAlert
+      setAlertKeys(prevKeys => ({ ...prevKeys, monthAlert: prevKeys.monthAlert + 1 }));
+    } else {
+      setMonthAlert(false)
+    }
 
+
+  }
   const handleSendCall = () => {
     const dataToSend = {
-      Age: age, 
-      Time: time, 
-      Gender: gender, 
-      Day: day, 
+      Age: age,
+      Time: time,
+      Gender: gender,
+      Day: day,
       Month: month,
       Route: route.instructions
     }
     sendPayloadToBackend(dataToSend).then(response => {
       // Handle the response from the backend
       console.log('Backend response:', response);
+      //console.log(typeof(response), Object.keys(response))
+      //so if we get a bad response we set an alert state to true depending on repsonse
+      const response_msg = response['message']
+      handleResponseValidation(response_msg)
     })
       .catch(error => {
         console.error('Error:', error);
       });
   }
-  /* const handleValidation = () =>{
-  //   //just check that all fields are met if so we set allowClick/call to true which will then ungray the button
-  //   if (hasGender && hasTime && hasDay && hasAge && hasMonth) {      
-  //     if (!ageAlert) { //if alert is false call can be made 
-  //       setAllowCall(true)     
-  //     } else {
-  //       setAgeAlert(false)
-  //       setAllowCall(false)              
-  //     }
-  //   }
-  // }
-  // const testButtonClick = () => {
-  //   console.log('Button clicked backend can be called') 
-  // }
-  */
 
-  //stepper functions
-  const handleNextStep = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1)
-  }
-  const handleBackStep = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1)
-  }
-  const handleStepReset = () => {
-    setActiveStep(0)
-  }
   //elements to be rendered
 
   return (
@@ -289,9 +317,58 @@ export default function Dashboard() {
 
         <FooterComponent></FooterComponent>
         {/*this section covers the alerts needed for the input */}
-        {ageAlert && (
-          <CustomAlert msg={'Driver age must be between 17-120'} title={'Driver Age Error Warning'} />
-        )}
+        <div>
+          {noDataAlert && (
+            <CustomAlert
+              key={alertKeys.noDataAlert}
+              severity={'error'}
+              msg={'No Data proivded please enter values'}
+              title={'No Data Provided'}></CustomAlert>
+          )}
+          {ageAlert && (
+            <CustomAlert
+              key={alertKeys.ageAlert}
+              severity={'error'}
+              msg={'Driver age Not given please provide an age'}
+              title={'Driver Age Error Warning'} />
+          )}
+          {ageInvalidAlert && (
+            <CustomAlert
+              key={alertKeys.ageInvalidAlert}
+              severity={'warning'}
+              msg={'Driver age Invalid: Age must be in range 17-120 '}
+              title={'Driver Age Error Warning'} />
+          )}
+          {timeAlert && (
+            <CustomAlert
+              key={alertKeys.timeAlert}
+              severity={'warning'}
+              msg={'Time input missing or invalid, input a time of day 24hr format e.g. 12:45'}
+              title={'Time Error Warning'} />
+          )}
+          {dayAlert && (
+            <CustomAlert
+              key={alertKeys.dayAlert}
+              severity={'error'}
+              msg={'Day input not chose, please select an option from the menu'}
+              title={'Day Error Warning'} />
+          )}
+          {genderAlert && (
+            <CustomAlert
+              key={alertKeys.genderAlert}
+              severity={'error'}
+              msg={'Gender input not chose, please select an option from the menu'}
+              title={'Gender Error Warning'} />
+          )}
+          {monthAlert && (
+            <CustomAlert
+              key={alertKeys.monthAlert}
+              severity={'error'}
+              msg={'Month input not chose, please select an option from the menu'}
+              title={'Month Error Warning'} />
+          )}
+        </div>
+
 
       </Box>
     </div>//end of container div

@@ -19,7 +19,7 @@ const modalStyle = {
     borderRadius: 5,
     p: 3,
 }
-const CustomAlert = ({msg, title, userinputs }) => {
+const CustomAlert = ({msg, title, severity }) => {
 
     const [open, setOpen] = React.useState(true);    
     const handleClose = () => setOpen(false);
@@ -31,10 +31,10 @@ const CustomAlert = ({msg, title, userinputs }) => {
                 onClose={handleClose}
             >
                 <Box sx={modalStyle}>
-                    <Alert severity="error">
+                    <Alert severity={severity}>
                         <AlertTitle>{title}</AlertTitle>
                         {msg}
-                        {userinputs}
+                        
                     </Alert>
                 </Box>
             </Modal>

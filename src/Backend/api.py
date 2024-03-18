@@ -7,6 +7,29 @@ from Statistics.statistics import MilliMortProcesses
 # Create a Blueprint for the API routes
 api_blueprint = Blueprint('api', __name__)
 
+def check_payload(data):
+    #checks to see if there is any values missing in the payload,  i.e. age = '' time = null etc
+    keys_to_check = ['Age', 'Time', 'Gender', 'Day', 'Month']
+    # Iterate through the keys to check each one
+    for key in keys_to_check:
+        # Check if the key is not in data, or value is None, or value is an empty string
+        if key not in data or data[key] is None or data[key] == '':
+            return {"status": "FAILURE", "message": f"Missing or invalid value for '{key}'"}
+    # If all checks pass, return None or a success message/dict
+    # Custom age check
+    if 'Age' in data:
+        try:
+            age = int(data['Age'])  # Ensure age is an integer
+            if age < 17 or age > 120:
+                return {"status": "Age FAILURE", "message": "Age must be between 17 and 120"}
+        except ValueError:
+            # This catches cases where the age value is not an integer
+            return {"status": "Age FAILURE", "message": "Invalid age format"}
+
+    return None    
+
+
+
 def break_down_basic_payload(data):
     """
     Takes in a list
@@ -60,9 +83,9 @@ def split_road_types(data) :
             direction['text'] = match.group().strip("()")
     # If no road type is found, leave the 'text' unchanged
     # Print results to verify
-    print('Printing filtered road type direction array')
-    for direction in data:
-        print(direction)
+   # print('Printing filtered road type direction array')
+    # for direction in data:
+    #     print(direction)
     return data
 
 def round_distance(num):
@@ -119,9 +142,23 @@ def get_millimort(basic_data_array, journey_distance):
 @api_blueprint.route('/api/sentdata', methods=['POST'])
 def receive_data():
     data = request.json
-    # print(type(data))    
-    # print(data.keys())
-    
+    #inital check for request
+    if data:
+        # Copy data to avoid modifying the original
+        data_without_route = data.copy()
+        # Remove the 'Route' key to not consider it in the check as Route has a defualt and will never be none/null 
+        data_without_route.pop('Route', None)
+        # Check if all other fields are empty or null
+        if all(not value for value in data_without_route.values()):
+            return jsonify({"status": "FAILURE", "message": "No User Data in Payload"}), 400
+    else:
+        # If data is None or not present
+        return jsonify({"status": "FAILURE", "message": "No Data in Payload"}), 400
+    #check keys for missing info
+    err_msg = check_payload(data) 
+    if err_msg != None:
+        return jsonify(err_msg)
+
     filtered_basic_data = break_down_basic_payload(data)
     filtered_route_array = break_down_direction_payload(data)
     filtered_roads = split_road_types(filtered_route_array)
@@ -170,7 +207,9 @@ def receive_data():
     # print(f"R road distance: {r_road_distance } km")
     # print(f"General road distance: {gen_road_distance } km")
     # print(f"Total road distance: {total_road_distance } km")
-    get_millimort(filtered_basic_data, total_road_distance)
+    millimort = get_millimort(filtered_basic_data, total_road_distance)
+    millimort *= 1000000 
+    print('Milimort:', millimort)
 
 
 

@@ -12,8 +12,7 @@ import SelectorMenu from "../Components/SelectorMenu";
 import MapComponent from "../Components/MapComponent";
 import DrawerComponent from "../Components/DrawerComponent"
 import CustomAlert from "../Components/Alert";
-import { Util } from "leaflet";
-import { render } from "@testing-library/react";
+import MillimortChart from "../Components/GuageChart";
 //conext
 import { useRoute } from "../Components/RouteContext";
 //backend sned data
@@ -76,6 +75,8 @@ export default function Dashboard() {
     setAge('');
     setTime(null);
   }, []);
+
+  const [millimort, setMillimort] = useState(0)
 
   const [hasAge, setHasAge] = useState(false);
   const [hasGender, setHasGender] = useState(false);
@@ -215,6 +216,7 @@ export default function Dashboard() {
     } else {
       setMonthAlert(false)
     }
+    
 
 
   }
@@ -234,6 +236,13 @@ export default function Dashboard() {
       //so if we get a bad response we set an alert state to true depending on repsonse
       const response_msg = response['message']
       handleResponseValidation(response_msg)
+      if(Array.isArray(response)) {
+        console.log('response is an ar')
+        const detailedResponse = response[1];
+        console.log(detailedResponse)
+        console.log('Millimort:', detailedResponse.millimort);
+        setMillimort(detailedResponse.millimort)
+      }
     })
       .catch(error => {
         console.error('Error:', error);
@@ -313,6 +322,11 @@ export default function Dashboard() {
           </div>
 
           <Button size="large" variant="outlined" fullWidth onClick={handleSendCall}>Calculate Risk</Button>
+        
+            <Box display="flex" justifyContent='center' paddingTop={4}>
+              <MillimortChart id='chart1' value={millimort} title={"MilliMort"} />
+            </Box>
+     
         </Box>
 
         <FooterComponent></FooterComponent>

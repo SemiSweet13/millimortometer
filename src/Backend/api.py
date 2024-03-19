@@ -132,12 +132,24 @@ def get_millimort(basic_data_array, journey_distance):
     print('Time fig based on time:',time_str,time_contribution)
     journey_fatal_rate = fatal_rate_per_km * journey_distance
     print('Fatal rate per journey: '"{:.25f}".format(journey_fatal_rate))
+    print('Fatal rate per journey as millimort: '"{:.25f}".format(journey_fatal_rate * 1000000))
 
     millimort = journey_fatal_rate * month_contribution * day_contribution * gender_contribution * time_contribution * age_contribution
+    millimort *= 1000000
     # Print the millimort rate
     print("Adjusted Fatal Rate Per Journey:", millimort)
     print("Adjusted Fatal Rate Per Journey: {:.25f}".format(millimort))
-    return millimort
+    figures = {
+        'journey_fatal_rate': journey_fatal_rate,
+        'journey_fatal_rate_millimort': journey_fatal_rate*1000000,
+        'age_rate_contribution': age_contribution,
+        'time_rate_contribution': time_contribution,
+        'gender_rate_contribution': gender_contribution,
+        'day_rate_contribution': day_contribution,
+        'month_rate_contribution': month_contribution,
+        'millimort': millimort,
+    }
+    return figures
 
 @api_blueprint.route('/api/sentdata', methods=['POST'])
 def receive_data():
@@ -207,13 +219,17 @@ def receive_data():
     # print(f"R road distance: {r_road_distance } km")
     # print(f"General road distance: {gen_road_distance } km")
     # print(f"Total road distance: {total_road_distance } km")
-    millimort = get_millimort(filtered_basic_data, total_road_distance)
-    millimort *= 1000000 
-    print('Milimort:', millimort)
+    millimort_results = get_millimort(filtered_basic_data, total_road_distance)
+    print(millimort_results)
+    millimort = millimort_results['millimort'] 
+    print('Milimort:', millimort, "decimal notation: {:.25f}".format(millimort))
 
-
-
-    print("Content-Type:", request.headers.get('Content-Type'))    
-    return jsonify({"status": "success", "message": "Data received successfully"})
+    print("Content-Type:", request.headers.get('Content-Type'))  
+    response = [
+    {"status": "success", "message": "Data received successfully"},
+    millimort_results
+    ]
+    return jsonify(response)  
+    #return jsonify({"status": "success", "message": "Data received successfully"})
 
 

@@ -135,7 +135,7 @@ def get_millimort(basic_data_array, journey_distance):
     print('Fatal rate per journey as millimort: '"{:.25f}".format(journey_fatal_rate * 1000000))
 
     millimort = journey_fatal_rate * month_contribution * day_contribution * gender_contribution * time_contribution * age_contribution
-    millimort *= 1000000
+    millimort *= 1000000000
     # Print the millimort rate
     print("Adjusted Fatal Rate Per Journey:", millimort)
     print("Adjusted Fatal Rate Per Journey: {:.25f}".format(millimort))

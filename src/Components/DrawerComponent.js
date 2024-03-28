@@ -10,9 +10,9 @@ import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 const DrawerComponent = () => {
   const data = [
     { name: "Home", icon: HomeOutlined, path: "/Home"},
-    { name: "Map", icon: ExploreIcon, path: "/Map" },
     { name: "Risk", icon: CrisisAlertIcon, path: "/Risk" },
   ];
+  //{ name: "Map", icon: ExploreIcon, path: "/Map" },
   return (
     <Drawer
       variant="permanent"

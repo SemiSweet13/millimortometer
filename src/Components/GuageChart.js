@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect } from "react";
 import ReactSpeedometer from "react-d3-speedometer";
 
 const chartStyles = {
@@ -18,11 +19,14 @@ const chartStyles = {
 }
 const MillimortChart = ({ id, value, title }) => {
 
+    useEffect(() => {
+        console.log(`Value changed to: ${value}`);
+    }, [value]);
     return (
         <div style={chartStyles.dial}>
             <ReactSpeedometer
                 maxValue={2}
-                minValue={0.0001}                
+                minValue={0.0001}
                 height={300}
                 width={300}
                 ringWidth={120}
@@ -37,7 +41,7 @@ const MillimortChart = ({ id, value, title }) => {
                 startColor="green"
                 endColor="red"
                 currentValueText="MilliMort: ${value}"
-            />            
+            />
         </div>
     )
 }

@@ -14,8 +14,7 @@ root.render(
       <RouteProvider>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/Home" element={<Dashboard />} />
-          <Route path="/Map" element={<Map />} />
+          <Route path="/Home" element={<Dashboard />} />          
           <Route path="/Risk" element={<Risk />} />
         </Routes>
       </RouteProvider>
